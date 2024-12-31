@@ -1,0 +1,32 @@
+{
+  "name": "RobloxianPhysical",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "SharedModules": {
+        "$path": "src/shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "QuestHandler": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "UI": {
+          "$path": "src/client"
+        }
+      }
+    },
+    
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}
