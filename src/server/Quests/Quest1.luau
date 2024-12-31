@@ -1,9 +1,13 @@
 --!strict
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Quest1Map = workspace.Quest1
 local treadmillAnimation = "rbxassetid://100328792765925"
+
+local Quest1Sound = SoundService.Quest1 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -17,6 +21,13 @@ local playersTable = require(script.Parent.Parent.Tables).playersTable
 
 --Main Function
 return function()
+	Quest1Sound.Volume = 0
+	Quest1Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest1Sound.Volume = i
+	end
+
 	--// spawning characters in their treadmills
 	local treadmills = Quest1Map.Treadmills
 	local floorHitbox = Quest1Map.FloorHitbox
@@ -76,6 +87,7 @@ return function()
 
 	-- Wait for countdown
 	task.wait(3)
+	WhiteSound:Play()
 
 	-- Start quest timer and animations for all players
 	local questStartTime = os.time()
@@ -124,6 +136,8 @@ return function()
 	floorHitboxConn = nil
 
 	-- Stop all animations
+	WhiteSound:Play()
+	Quest1Sound:Stop()
 	for plrId, track in pairs(treadmillAnimationTracks) do
 		track:Stop()
 		treadmillAnimationTracks[plrId] = nil

@@ -1,9 +1,13 @@
 --!strict
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = ReplicatedStorage.Remotes
 local Quest5V1Map = workspace.Quest5V1
+
+local Quest5v1Sound = SoundService.Quest5v1 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -26,6 +30,13 @@ return function()
 	if not lastStandingTeam or not lastStandingTeam.members then
 		print("No last standing team found!")
 		return
+	end
+
+	Quest5v1Sound.Volume = 0
+	Quest5v1Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest5v1Sound.Volume = i
 	end
 
 	local stairsClimbers = Quest5V1Map.StairClimbers
@@ -125,6 +136,7 @@ return function()
 	Remotes.StartTimer:FireAllClients(os.time() + 3)
 	task.wait(3)
 
+	WhiteSound:Play()
 	-- Gradually increase treadmill speed
 	local baseSpeed = 5  -- Starting speed
 	local speedIncrement = 1  -- Speed increase per second
@@ -154,6 +166,8 @@ return function()
 	end
 
 	-- Stop treadmills
+	Quest5v1Sound:Stop()
+	WhiteSound:Play()
 	for _, treadmill in ipairs(treadmills) do
 		treadmill.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
 	end

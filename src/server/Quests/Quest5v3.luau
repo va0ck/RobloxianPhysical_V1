@@ -1,8 +1,12 @@
 --!strict
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = ReplicatedStorage.Remotes
 local Quest5V3Map = workspace.Quest5V3
+
+local Quest5v3Sound = SoundService.Quest5v3 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -42,6 +46,13 @@ return function()
 	if #activePlayers == 0 then
 		print("No active players for pull-up challenge!")
 		return
+	end
+
+	Quest5v3Sound.Volume = 0
+	Quest5v3Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest5v3Sound.Volume = i
 	end
 
 	for _, playerObj in ipairs(activePlayers) do
@@ -120,6 +131,8 @@ return function()
 
 	-- Wait for questTime seconds
 	local startTime = os.time()
+	WhiteSound:Play()
+
 	for _, playerObj in pairs(activePlayers) do
 		local player = playerObj.player
 		if not player or playerObj.isEliminated then continue end
@@ -146,6 +159,8 @@ return function()
 	end
 
 	-- Eliminate the loser
+	Quest5v3Sound:Stop()
+	WhiteSound:Play()
 	for _, playerObj in ipairs(activePlayers) do
 		if playerObj.userId ~= winnerObj.userId then
 			playerObj.isEliminated = true

@@ -1,7 +1,11 @@
 --!strict
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Quest3Map = workspace.Quest3
+
+local Quest3Sound = SoundService.Quest3 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -15,6 +19,13 @@ local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 return function()
+	Quest3Sound.Volume = 0
+	Quest3Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest3Sound.Volume = i
+	end
+
 	print("Starting Quest 3...")
 	--// wait for transition on the client
 	for _, plrInfo in pairs(playersTable) do
@@ -134,6 +145,7 @@ return function()
 
 	-- Wait for teams to finish (with timeout)
 	local startTime = os.time()
+	WhiteSound:Play()
 	for _, plrInfo in pairs(playersTable) do
 		local player = plrInfo.player
 		if not player or plrInfo.isEliminated then continue end
@@ -141,9 +153,12 @@ return function()
 		ReplicatedStorage.Remotes.StartTopTimer:FireClient(player, startTime + questsDuration.Quest3)
 	end
 	while getFinishedTeamsCount() < 2 do
-		if os.time() - startTime > questsDuration.Quest3 then
+		if (os.time() - startTime) > questsDuration.Quest3 then
+			break
+		elseif (#teamsTable == 1 and getFinishedTeamsCount() == 1) then
 			break
 		end
+
 		task.wait(1)
 	end
 
@@ -167,6 +182,8 @@ return function()
 	end)
 
 	-- Eliminate team that didn't finish in top 2
+	Quest3Sound:Stop()
+	WhiteSound:Play()
 	local currentTime = os.time()
 	for i, team in ipairs(sortedTeams) do
 		-- Despawn all team members
@@ -196,4 +213,7 @@ return function()
 			print(string.format("Team %s advances!", team.name))
 		end
 	end
+
+	--Clear timer going on.
+	ReplicatedStorage.Remotes.StartTopTimer:FireAllClients(0)
 end

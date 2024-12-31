@@ -1,8 +1,12 @@
 --!strict
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Quest2Map = workspace.Quest2
+
+local Quest2Sound = SoundService.Quest2 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local BlockTool = ReplicatedStorage.Tools.Block
 local CircleTool = ReplicatedStorage.Tools.Circle
@@ -19,6 +23,13 @@ local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 return function()
+	Quest2Sound.Volume = 0
+	Quest2Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest2Sound.Volume = i
+	end
+
 	print("Starting Quest 2...")
 	--// wait for transition on the client
 	print("DOING TRANSITION")
@@ -337,6 +348,7 @@ return function()
 
 	-- Wait for teams to finish (with timeout)
 	local startTime = os.time()
+	WhiteSound:Play()
 	for _, plrInfo in pairs(playersTable) do
 		local player = plrInfo.player
 		if not player or plrInfo.isEliminated then continue end
@@ -352,6 +364,8 @@ return function()
 	end
 
 	--// print results
+	Quest2Sound:Stop()
+	WhiteSound:Play()
 	for i, teamInfo in pairs(teamsTable) do
 		print(string.format("Team %s - Objects Placed: %d", 
 			teamInfo.name, 

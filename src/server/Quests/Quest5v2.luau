@@ -1,10 +1,14 @@
 --!strict
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local TagTool = ReplicatedStorage.Tools.Tag
 
 local Quest5V2Map = workspace.Quest5V2
+
+local Quest5v2Sound = SoundService.Quest5v2 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -44,6 +48,13 @@ return function()
 		return
 	end
 
+	Quest5v2Sound.Volume = 0
+	Quest5v2Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest5v2Sound.Volume = i
+	end
+
 	-- Function to update who each player can tag
 	local function updateTagTargets()
 		local targets = {}
@@ -66,6 +77,7 @@ return function()
 	end
 
 	task.wait(transitionTime.Quest5V2)
+	WhiteSound:Play()
 
 	for _, playerObj in ipairs(activePlayers) do
 		-- Load character
@@ -160,6 +172,8 @@ return function()
 							else
 								-- We have exactly 2 players left, clean up and proceed
 								print("2 players remaining! Moving to next challenge.")
+								WhiteSound:Play()
+								Quest5v2Sound:Stop()
 
 								-- Clean up all connections
 								for _, conn in pairs(toolConnections) do

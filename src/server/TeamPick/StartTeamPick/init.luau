@@ -1,10 +1,13 @@
 --!strict
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
 local questMessages = require(SettingsFolder.QuestMessages)
+
+local TeamPick = SoundService.TeamPick ::Sound
 
 --Maps
 local TeamPickMap = workspace.TeamPick
@@ -17,6 +20,13 @@ local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 --Main Function
 return function()
+	TeamPick.Volume = 0
+	TeamPick:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait()
+		TeamPick.Volume = i
+	end
+
 	print("Starting Team Pick...")
 	spawnPlayersTeamPick()
 	-- Fire camera transition to all players
@@ -45,11 +55,15 @@ return function()
 	while #getNonTeamPlayers() > 0 do
 		for _, team in pairs(teamsTable) do
 			local leaderObj = PlayerModule.GetPlayerObj(team.leader, playersTable)
-			if not leaderObj then continue end
+			if not leaderObj then 
+				continue 
+			end
 
 			-- Get available players
 			local availablePlayers = getNonTeamPlayers()
-			if #availablePlayers == 0 then break end
+			if #availablePlayers == 0 then 
+				break 
+			end
 
 			-- Request leader to pick a team member with 5 second timeout
 			local picked = false
@@ -101,6 +115,11 @@ return function()
 	end
 
 	print("Team picking finished!")
+	for i = TeamPick.Volume, 0, -0.02 do
+		task.wait()
+		TeamPick.Volume = i
+	end
+	TeamPick:Stop()
 	task.wait(1)
 	-- Print final teams
 	for teamName, team in pairs(teamsTable) do

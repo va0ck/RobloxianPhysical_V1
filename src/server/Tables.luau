@@ -10,7 +10,7 @@
 local PlayerModule = require(script.Parent.OOP.PlayerObject)
 
 --Types
-type teamsTable = {
+export type teamsTable = {
 	leader: number,
 	members: {number},
 	name: string,

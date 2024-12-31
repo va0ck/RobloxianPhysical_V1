@@ -1,9 +1,13 @@
 --!strict
+local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local SandBagTool = ReplicatedStorage.Tools.SandBag
 
 local Quest4Map = workspace.Quest4
+
+local Quest4Sound = SoundService.Quest4 ::Sound
+local WhiteSound = SoundService.Whistle ::Sound
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -17,6 +21,7 @@ local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
+local allTables = require(script.Parent.Parent.Tables)
 
 return function()
 	print("Starting Quest 4...")
@@ -29,20 +34,28 @@ return function()
 		end
 	end
 
-	if #activeTeams == 1 then
-		local getLastActiveTeam = activeTeams[1]
-		lastStandingTeam.leader = getLastActiveTeam.leader
-		lastStandingTeam.members = getLastActiveTeam.members
-		lastStandingTeam.name = getLastActiveTeam.name
-		lastStandingTeam.color = getLastActiveTeam.color
+	-- [[EyeWhisper just requested to not skip Quest4 in DMs.]]
+	-- if #activeTeams == 1 then
+	-- 	local getLastActiveTeam = activeTeams[1]
+	-- 	lastStandingTeam.leader = getLastActiveTeam.leader
+	-- 	lastStandingTeam.members = getLastActiveTeam.members
+	-- 	lastStandingTeam.name = getLastActiveTeam.name
+	-- 	lastStandingTeam.color = getLastActiveTeam.color
 		
-		lastStandingTeam.isEliminated = getLastActiveTeam.isEliminated
-		lastStandingTeam.eliminationTime = getLastActiveTeam.eliminationTime
+	-- 	lastStandingTeam.isEliminated = getLastActiveTeam.isEliminated
+	-- 	lastStandingTeam.eliminationTime = getLastActiveTeam.eliminationTime
 		
-		lastStandingTeam.questData = getLastActiveTeam.questData
+	-- 	lastStandingTeam.questData = getLastActiveTeam.questData
 		
-		print(string.format("Only one team remaining! Team %s proceeds directly to Quest 5!", lastStandingTeam.name))
-		return
+	-- 	print(string.format("Only one team remaining! Team %s proceeds directly to Quest 5!", lastStandingTeam.name))
+	-- 	return
+	-- end
+
+	Quest4Sound.Volume = 0
+	Quest4Sound:Play()
+	for i = 0, 0.5, 0.02 do
+		task.wait(0.01)
+		Quest4Sound.Volume = i
 	end
 
 	--// wait for transition on the client
@@ -193,6 +206,7 @@ return function()
 	end
 
 	-- Start timer for quest duration
+	WhiteSound:Play()
 	local startTime = os.time()
 	for _, plrInfo in pairs(playersTable) do
 		local player = plrInfo.player
@@ -205,32 +219,36 @@ return function()
 	end
 
 	-- Find teams with highest score
-	local highestScore = 0
 	local winningTeams = {}
-	local lowestScore = math.huge
 	local losingTeams = {}
 
-	for _, team in pairs(teamsTable) do
-		if not team.isEliminated then
-			-- Track highest score
-			if team.questData.quest4Score > highestScore then
-				highestScore = team.questData.quest4Score
-				winningTeams = {team}
-			elseif team.questData.quest4Score == highestScore then
-				table.insert(winningTeams, team)
-			end
+	local team1Object = {} :: allTables.teamsTable
+	local team2Object = {} :: allTables.teamsTable
 
-			-- Track lowest score
-			if team.questData.quest4Score < lowestScore then
-				lowestScore = team.questData.quest4Score
-				losingTeams = {team}
-			elseif team.questData.quest4Score == lowestScore then
-				table.insert(losingTeams, team)
+	--Set Teams
+	for teamIndex, team in ipairs(teamsTable) do
+		if not team.isEliminated then
+			if teamIndex == 1 then
+				team1Object = team
+			elseif teamIndex == 2 then
+				team2Object = team
 			end
 		end
 	end
 
+	local team1Score = team1Object.questData.quest4Score
+	local team2Score = team2Object.questData.quest4Score or -1
+	if team1Score > team2Score then
+		table.insert(winningTeams, team1Object)
+		table.insert(losingTeams, team2Object)
+	else
+		table.insert(losingTeams, team1Object)
+		table.insert(winningTeams, team2Object)
+	end
+
 	-- Eliminate teams with lowest score
+	Quest4Sound:Stop()
+	WhiteSound:Play()
 	local currentTime = os.time()
 	for _, team in ipairs(losingTeams) do
 		team.isEliminated = true
