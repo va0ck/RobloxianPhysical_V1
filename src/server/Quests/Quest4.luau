@@ -236,8 +236,16 @@ return function()
 		end
 	end
 
-	local team1Score = team1Object.questData.quest4Score
-	local team2Score = team2Object.questData.quest4Score or -1
+	local team1Score = -1
+	local team2Score = -1
+	
+	if team1Object and team1Object.questData and team1Object.questData.quest4Score then
+		team1Score = team1Object.questData.quest4Score
+	end
+	if team2Object and team2Object.questData and team2Object.questData.quest4Score then
+		team2Score = team2Object.questData.quest4Score
+	end
+
 	if team1Score > team2Score then
 		table.insert(winningTeams, team1Object)
 		table.insert(losingTeams, team2Object)
@@ -251,21 +259,23 @@ return function()
 	WhiteSound:Play()
 	local currentTime = os.time()
 	for _, team in ipairs(losingTeams) do
-		team.isEliminated = true
-		team.eliminationTime = currentTime
+		if team and team.members then
+			team.isEliminated = true
+			team.eliminationTime = currentTime
 
-		-- Eliminate and despawn all team members
-		for _, memberId in ipairs(team.members) do
-			local memberObj = PlayerModule.GetPlayerObj(memberId, playersTable)
-			if memberObj then
-				memberObj:Despawn()
-				memberObj.isEliminated = true
-				memberObj.eliminationTime = currentTime
-				respawnToObby(memberObj.player)
+			-- Eliminate and despawn all team members
+			for _, memberId in ipairs(team.members) do
+				local memberObj = PlayerModule.GetPlayerObj(memberId, playersTable)
+				if memberObj then
+					memberObj:Despawn()
+					memberObj.isEliminated = true
+					memberObj.eliminationTime = currentTime
+					respawnToObby(memberObj.player)
+				end
 			end
-		end
 
-		print(string.format("Team %s has been eliminated! (Score: %d)", team.name, team.questData.quest4Score))
+			print(string.format("Team %s has been eliminated! (Score: %d)", team.name, team.questData.quest4Score))
+		end
 	end
 
 	-- Set last standing team if there's only one team left

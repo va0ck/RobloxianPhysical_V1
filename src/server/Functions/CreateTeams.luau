@@ -5,6 +5,9 @@ local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 local PlayerModule = require(script.Parent.Parent.OOP.PlayerObject)
 
+-- Create teams with top players as leaders, filling each team to 5 players
+local playersPerTeam = require(script.Parent.Parent.Settings.PlayersPerTeam)
+
 --Return function
 return function()
 	local activePlayers = {} :: {PlayerModule.PlayerObject}
@@ -19,24 +22,20 @@ return function()
 		return a:GetQuest1Placement(playersTable) < b:GetQuest1Placement(playersTable)
 	end)
 
-	-- Create teams with top players as leaders, filling each team to 5 players
-	local playersPerTeam = 5
-
 	-- Calculate how many complete teams we can make
 	local numTeams = math.ceil(#activePlayers / playersPerTeam)
 	numTeams = math.min(numTeams, #teamTemplate) -- Don't exceed template count
 
-	print(`{numTeams} is avaliable.`)
+	print(`{numTeams} team(s) is avaliable.`)
 	for i = 1, numTeams do
-		local startIndex = (i - 1) * playersPerTeam + 1
-		local teamMembers = {} :: {number}
 
-		-- Get 5 players for this team
-		for j = 0, playersPerTeam - 1 do
-			local playerIndex = startIndex + j
-			if activePlayers[playerIndex] then
-				table.insert(teamMembers, activePlayers[playerIndex].userId)
-				activePlayers[playerIndex].team = teamTemplate[i].name --Unsure about this type error.
+		--Puts top player in team.
+		local teamMembers = {} :: {number}
+		for plrIndex, plrInfo in ipairs(activePlayers) do
+			if (not plrInfo.team) then
+				plrInfo.team = teamTemplate[i].name
+				table.insert(teamMembers, plrInfo.userId)
+				break
 			end
 		end
 

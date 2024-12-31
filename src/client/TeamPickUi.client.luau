@@ -1,30 +1,68 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Remotes = ReplicatedStorage.Remotes
+local FolderNet = require(ReplicatedStorage.Packages["folder-net"])
+local AvatarThumbnailModule = require(ReplicatedStorage.SharedModules.AvatarThumbnail)
+
+local REPickMember = FolderNet.GetRemoteEvent("TeamPick", "PickMember")
+local REPickMemberTimer = FolderNet.GetRemoteEvent("TeamPick", "PickMemberTimer")
 
 local MemberPickUI = ReplicatedStorage.Assets.UI.MemberPick
-
-local PickMemberFunc = Remotes.PickMember
 
 local LocalPlayer = Players.LocalPlayer
 local playerGui = LocalPlayer.PlayerGui
 
-PickMemberFunc.OnClientInvoke = function(pickTimeout, availablePlayers)
+local _scriptTimerConnection = nil :: RBXScriptConnection?
+local _scriptConnections = nil :: RBXScriptConnection?
+
+REPickMemberTimer.OnClientEvent:Connect(function(endTime)
+    local TeamPickUI = playerGui.MainUI.TeamPickUI
+
+    --Clears last timer.
+    if _scriptTimerConnection then
+        _scriptTimerConnection:Disconnect()
+        _scriptTimerConnection = nil
+
+        TeamPickUI.TimeLeft.Text = ""
+    end
+
+    --Starts Timer
+    local timeLeft = endTime
+    _scriptTimerConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if (os.time() >= endTime) then
+            _scriptTimerConnection:Disconnect()
+            _scriptTimerConnection = nil
+            return
+        end
+        
+        TeamPickUI.TimeLeft.Text = string.format("Time Left: %01d", math.ceil(timeLeft))
+        timeLeft = endTime - os.time()
+    end)
+end)
+
+REPickMember.OnClientEvent:Connect(function(availablePlayers)
     local TeamPickUI = playerGui.MainUI.TeamPickUI
     local ScrollingFrame = TeamPickUI.ScrollingFrame
-    TeamPickUI.Visible = true
-    
-    -- Clear existing UI elements
+
+    --Clear existing UI elements and connections.
+    TeamPickUI.Visible = false
     for _, child in pairs(ScrollingFrame:GetChildren()) do
         if child:IsA("Frame") then
             child:Destroy()
         end
     end
-    
-    local selectedPlayer = nil
-    
-    -- Add UI for each available player
+    if _scriptConnections then
+        _scriptConnections:Disconnect()
+        _scriptConnections = nil
+    end
+
+    --Doesn't show if no avaliablePlayers.
+    if #availablePlayers <= 0 then
+        return
+    end
+
+    --Setups availablePlayers.
+    TeamPickUI.Visible = true
     for _, availablePlayer in pairs(availablePlayers) do
         local memberPlayer = Players:GetPlayerByUserId(availablePlayer.userId)
         local memberUI = MemberPickUI:Clone()
@@ -37,45 +75,18 @@ PickMemberFunc.OnClientInvoke = function(pickTimeout, availablePlayers)
         end
 
         -- Set up avatar
-        local MemberAvatar = memberUI:FindFirstChild("MemberAvatar")
+        local MemberAvatar = memberUI:FindFirstChild("MemberAvatar") ::ImageLabel
         if MemberAvatar then
-            MemberAvatar.Image = Players:GetUserThumbnailAsync(availablePlayer.userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+            MemberAvatar.Image = AvatarThumbnailModule(availablePlayer.userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
         end
         
         -- Set up button click
         local pickButton = memberUI:FindFirstChild("PickButton")
         if pickButton then
-            pickButton.MouseButton1Click:Connect(function()
-                selectedPlayer = availablePlayer.userId
+            _scriptConnections = pickButton.MouseButton1Click:Connect(function()
+                REPickMember:FireServer(availablePlayer.userId)
                 TeamPickUI.Visible = false
             end)
         end
     end
-    
-    -- Update timer
-    local timeLeft = pickTimeout
-    local connection
-    connection = game:GetService("RunService").Heartbeat:Connect(function()
-        if not TeamPickUI.Visible then
-            connection:Disconnect()
-            return
-        end
-        
-        TeamPickUI.TimeLeft.Text = string.format("Time Left: %d", math.ceil(timeLeft))
-        timeLeft = timeLeft - game:GetService("RunService").Heartbeat:Wait()
-        
-        if timeLeft <= 0 then
-            TeamPickUI.Visible = false
-            connection:Disconnect()
-        end
-    end)
-    
-    -- Wait for selection or timeout
-    local startTime = os.time()
-    while TeamPickUI.Visible and os.time() - startTime < pickTimeout do
-        task.wait()
-    end
-    
-    TeamPickUI.Visible = false
-    return selectedPlayer
-end
+end)

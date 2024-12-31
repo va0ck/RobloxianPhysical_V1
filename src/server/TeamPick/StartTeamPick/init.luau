@@ -1,16 +1,28 @@
 --!strict
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local FolderNet = require(ReplicatedStorage.Packages["folder-net"])
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+
+local REPickMember = FolderNet.GetRemoteEvent("TeamPick", "PickMember")
+local REPickMemberTimer = FolderNet.GetRemoteEvent("TeamPick", "PickMemberTimer")
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
 local questMessages = require(SettingsFolder.QuestMessages)
+local questDuration = require(SettingsFolder.QuestDuration)
 
 local TeamPick = SoundService.TeamPick ::Sound
 
+-- Create teams with top players as leaders, filling each team to 5 players
+local playersPerTeam = require(script.Parent.Parent.Settings.PlayersPerTeam)
+
 --Maps
 local TeamPickMap = workspace.TeamPick
+
+--Connetion
+local _teamLeaderConnection = nil :: RBXScriptConnection?
 
 --Modules
 local spawnPlayersTeamPick = require(script.SpawnPlayersTeamPick)
@@ -34,7 +46,7 @@ return function()
 		local player = plrInfo.player
 		if not player or plrInfo.isEliminated then continue end
 
-		ReplicatedStorage.Remotes.CameraTransition:FireClient(player, TeamPickMap, transitionTime.TeamPick, questMessages.TeamPick)
+		Remotes.CameraTransition:FireClient(player, TeamPickMap, transitionTime.TeamPick, questMessages.TeamPick)
 	end
 
 	-- Wait for transition to complete
@@ -44,76 +56,92 @@ return function()
 	local function getNonTeamPlayers()
 		local available = {}
 		for _, plrInfo in pairs(playersTable) do
-			if not plrInfo.isEliminated and not plrInfo.team then
+			if (plrInfo.isEliminated == false) and (not plrInfo.team) then
 				table.insert(available, plrInfo)
 			end
 		end
 		return available
 	end
 
-	-- Keep picking until everyone has a team
-	while #getNonTeamPlayers() > 0 do
-		for _, team in pairs(teamsTable) do
-			local leaderObj = PlayerModule.GetPlayerObj(team.leader, playersTable)
-			if not leaderObj then 
-				continue 
+	-- StartTimer
+	local startTime = os.time()
+	for _, plrInfo in pairs(playersTable) do
+		local player = plrInfo.player
+		if not player or plrInfo.isEliminated then continue end
+
+		Remotes.StartTopTimer:FireClient(player, startTime + questDuration.TeamPick)
+	end
+
+	--Creates a endpoint for team leaders.
+	for _, team in pairs(teamsTable) do
+		local leaderObj = PlayerModule.GetPlayerObj(team.leader, playersTable)
+		if not leaderObj then
+			continue
+		end
+
+		REPickMember:FireClient(leaderObj.player, getNonTeamPlayers())
+		REPickMemberTimer:FireClient(leaderObj.player, startTime + questDuration.TeamPick)
+
+		_teamLeaderConnection = REPickMember.OnServerEvent:Connect(function(plr: Player, pickedUserId: number)
+			if plr.UserId ~= team.leader then
+				return
 			end
 
-			-- Get available players
-			local availablePlayers = getNonTeamPlayers()
-			if #availablePlayers == 0 then 
-				break 
-			end
-
-			-- Request leader to pick a team member with 5 second timeout
-			local picked = false
-			local pickedUserId = nil
-			local waitTime = 20
-
-			task.delay(waitTime, function()
-				if not picked then
-					-- Random pick if leader didn't choose in time
-					local availablePlayers = getNonTeamPlayers()
-					if #availablePlayers > 0 then
-						local randomIndex = math.random(1, #availablePlayers)
-						pickedUserId = availablePlayers[randomIndex].userId
-						picked = true
-					end
-				end
-			end)
-
-			local leaderPick = Remotes.PickMember:InvokeClient(leaderObj.player, waitTime, availablePlayers)
-			if leaderPick and not picked then
-				pickedUserId = leaderPick
-				picked = true
-			end
-
-			-- Wait for either leader pick or timeout
-			while not picked do
-				task.wait()
-			end
-
-			-- Validate pick and add to team
 			if pickedUserId then
 				local pickedPlayer = PlayerModule.GetPlayerObj(pickedUserId, playersTable)
-				if pickedPlayer and not pickedPlayer.team then
+				if pickedPlayer and (not pickedPlayer.team) then
 					pickedPlayer.team = team.name
 
 					table.insert(team.members, pickedUserId)
-
-					-- Print pick information
-					if picked then
-						print(string.format("Leader %s picked member %s", leaderObj.name, pickedPlayer.name))
-					else
-						print(string.format("Random pick for Leader %s: member %s", leaderObj.name, pickedPlayer.name))
-					end
+					print(string.format("Leader %s picked member %s", leaderObj.name, pickedPlayer.name))
 				end
 			end
 
-			task.wait(1) -- Give time between picks
+			--Sends updated list of avaliable players if not full.
+			if #team.members < playersPerTeam then
+				REPickMember:FireClient(leaderObj.player, getNonTeamPlayers())
+			else
+				--Empty table to signal GUI should be removed.
+				REPickMember:FireClient(leaderObj.player, {})
+			end
+		end)
+	end
+
+	-- Keep picking until everyone has a team.
+	while #getNonTeamPlayers() > 0 do
+		if (os.time() - startTime) > questDuration.TeamPick then
+			break
+		end
+		task.wait(1)
+	end
+
+
+	--Clear up connections regarding with _teamLeadersConnection.
+	--This just ends the pick options for them.
+	if _teamLeaderConnection then
+		_teamLeaderConnection:Disconnect()
+		_teamLeaderConnection = nil
+	end
+	REPickMember:FireAllClients({}) --Empty table to indicate to remove GUI.
+
+
+	-- Picks random if someone wasn't picked within the time limit. 
+	-- First team to end team fill algorithm.
+	for _, teamObj in pairs(teamsTable) do
+		--Example: (If team has 4 players less than 5) and (Still nonTeamPlayers there.)
+		if #teamObj.members < playersPerTeam and (#getNonTeamPlayers() > 0) then
+			repeat
+				local availablePlayers = getNonTeamPlayers()
+				local randomIndex = math.random(1, #availablePlayers)
+				local pickedUserId = availablePlayers[randomIndex].userId
+				table.insert(teamObj.members, pickedUserId)
+
+				--Repeat until (teamObj has 5 or more members) or (nonTeamPlayers are gone.)
+			until (#teamObj.members >= playersPerTeam) or (#getNonTeamPlayers() > 0)
 		end
 	end
 
+	-- Clean up and final teams list.
 	print("Team picking finished!")
 	for i = TeamPick.Volume, 0, -0.02 do
 		task.wait()
@@ -121,6 +149,7 @@ return function()
 	end
 	TeamPick:Stop()
 	task.wait(1)
+
 	-- Print final teams
 	for teamName, team in pairs(teamsTable) do
 		print(teamName .. " Team:")
@@ -134,4 +163,7 @@ return function()
 	for _, plrInfo in pairs(playersTable) do
 		plrInfo:Despawn()
 	end
+
+	--Clear timer going on.
+	ReplicatedStorage.Remotes.StartTopTimer:FireAllClients(0)
 end

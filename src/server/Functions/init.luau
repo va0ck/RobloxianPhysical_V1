@@ -20,6 +20,7 @@ return {
 
 		for i, player in pairs(players) do
 			local playerObj = PlayerModule.new(player, i)
+			playerObj.team = nil
 			table.insert(playersTable, playerObj)
 		end
 	end,

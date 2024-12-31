@@ -84,16 +84,6 @@ return function()
 
 			local loserSpot = TeamPickMap.LoserSpots:FindFirstChild("Loser" .. losersPlaced)
 			if loserSpot then
-				local playerReference = Instance.new("NumberValue")
-				playerReference.Name = "PlayerReference"
-				playerReference.Value = plrInfo.userId
-				playerReference.Parent = loserSpot
-
-				local isPicked = Instance.new("BoolValue")
-				isPicked.Name = "IsPicked"
-				isPicked.Value = false
-				isPicked.Parent = loserSpot
-
 				if rblxCharacter then
 					rblxCharacter:PivotTo(loserSpot.CFrame + Vector3.new(0, 5, 0))
 				end

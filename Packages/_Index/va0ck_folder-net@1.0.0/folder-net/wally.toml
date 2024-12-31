@@ -1,0 +1,9 @@
+[package]
+name = "va0ck/folder-net"
+description = "Remotes/Bindables folder names & event/bindables names organization."
+version = "1.0.0"
+license = "MIT"
+authors = ["Quenty/Remoting", "Quenty/Table"]
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+[dependencies]
