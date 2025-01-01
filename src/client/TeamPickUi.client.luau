@@ -35,7 +35,10 @@ REPickMemberTimer.OnClientEvent:Connect(function(endTime)
             return
         end
         
-        TeamPickUI.TimeLeft.Text = string.format("Time Left: %01d", math.ceil(timeLeft))
+        if TeamPickUI and TeamPickUI:FindFirstChild("TimeLeft") then
+            TeamPickUI.TimeLeft.Text = string.format("Time Left: %01d", math.ceil(timeLeft))
+        end
+
         timeLeft = endTime - os.time()
     end)
 end)
@@ -69,19 +72,19 @@ REPickMember.OnClientEvent:Connect(function(availablePlayers)
         memberUI.Parent = ScrollingFrame
 
         -- Set up name
-        local MemberName = memberUI:FindFirstChild("MemberName")
+        local MemberName = memberUI:FindFirstChild("MemberName") ::TextLabel
         if MemberName then
             MemberName.Text = memberPlayer.Name
         end
 
         -- Set up avatar
-        local MemberAvatar = memberUI:FindFirstChild("MemberAvatar") ::ImageLabel
+        local MemberAvatar = memberUI:FindFirstChild("ProfilePicture") ::ImageLabel
         if MemberAvatar then
             MemberAvatar.Image = AvatarThumbnailModule(availablePlayer.userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
         end
         
         -- Set up button click
-        local pickButton = memberUI:FindFirstChild("PickButton")
+        local pickButton = memberUI:FindFirstChild("PickButton") ::TextButton
         if pickButton then
             _scriptConnections = pickButton.MouseButton1Click:Connect(function()
                 REPickMember:FireServer(availablePlayer.userId)

@@ -74,6 +74,9 @@ return function()
 	local scoreDisplayers = Quest4Map.ScoreDisplayers
 	local bagLifters = Quest4Map.BagLifters
 
+	local amountOfTeamsMade = 0
+	local ifOneTeamOnlyThenWhatScoreMinimum = 0
+
 	for i, team in pairs(teamsTable) do
 		-- Skip eliminated teams
 		if team.isEliminated then
@@ -82,6 +85,14 @@ return function()
 
 		-- Initialize team score
 		team.questData.quest4Score = 0
+
+		--If there's only one team, then sets the minimumScore needed.
+		amountOfTeamsMade += 1
+		if amountOfTeamsMade == 1 then
+			for i = 1, #team.members, 1 do
+				ifOneTeamOnlyThenWhatScoreMinimum += 4
+			end
+		end
 
 		-- Spawn players spread out
 		local spawnPart = teamSpawns:FindFirstChild("Spawn" .. i)
@@ -205,6 +216,21 @@ return function()
 		end
 	end
 
+	local team1Score = -1
+	local team2Score = -1
+
+	if amountOfTeamsMade == 1 then
+		team2Score = ifOneTeamOnlyThenWhatScoreMinimum
+		local scoreDisplay = scoreDisplayers:FindFirstChild("TeamScore" .. 2)
+
+		if scoreDisplay then
+			local scoreText = scoreDisplay.SurfaceGui:FindFirstChild("ScoreText") ::TextLabel
+			if scoreText then
+				scoreText.Text = `{team2Score}`
+			end
+		end
+	end
+
 	-- Start timer for quest duration
 	WhiteSound:Play()
 	local startTime = os.time()
@@ -235,9 +261,6 @@ return function()
 			end
 		end
 	end
-
-	local team1Score = -1
-	local team2Score = -1
 	
 	if team1Object and team1Object.questData and team1Object.questData.quest4Score then
 		team1Score = team1Object.questData.quest4Score
@@ -246,12 +269,34 @@ return function()
 		team2Score = team2Object.questData.quest4Score
 	end
 
-	if team1Score > team2Score then
-		table.insert(winningTeams, team1Object)
-		table.insert(losingTeams, team2Object)
+	if amountOfTeamsMade == 1 then
+		--If one team, then they have to get to that score.
+		if team1Score >= team2Score then
+			table.insert(winningTeams, team1Object)
+
+			if team2Object then
+				table.insert(losingTeams, team2Object)
+			end
+		end
 	else
-		table.insert(losingTeams, team1Object)
-		table.insert(winningTeams, team2Object)
+		--Regular mode TeamVersusTeam.
+		if team1Score > team2Score then
+			table.insert(winningTeams, team1Object)
+			table.insert(losingTeams, team2Object)
+		elseif team1Score < team2Score then
+			table.insert(losingTeams, team1Object)
+			table.insert(winningTeams, team2Object)
+		else
+			--IF TIED, CHOOSE RANDOM.
+			local mathRandom = math.random(1,2)
+			if mathRandom == 1 then
+				table.insert(winningTeams, team1Object)
+				table.insert(losingTeams, team2Object)
+			else
+				table.insert(losingTeams, team1Object)
+				table.insert(winningTeams, team2Object)
+			end
+		end
 	end
 
 	-- Eliminate teams with lowest score

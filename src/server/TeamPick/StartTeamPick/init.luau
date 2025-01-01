@@ -53,7 +53,7 @@ return function()
 	task.wait(transitionTime.TeamPick)
 
 	-- Get all non-team players
-	local function getNonTeamPlayers()
+	local function getNonTeamPlayers() --Server
 		local available = {}
 		for _, plrInfo in pairs(playersTable) do
 			if (plrInfo.isEliminated == false) and (not plrInfo.team) then
@@ -73,12 +73,14 @@ return function()
 	end
 
 	--Creates a endpoint for team leaders.
+	local allTeamLeaderObj = {} :: {PlayerModule.PlayerObject}
 	for _, team in pairs(teamsTable) do
 		local leaderObj = PlayerModule.GetPlayerObj(team.leader, playersTable)
 		if not leaderObj then
 			continue
 		end
 
+		table.insert(allTeamLeaderObj, leaderObj)
 		REPickMember:FireClient(leaderObj.player, getNonTeamPlayers())
 		REPickMemberTimer:FireClient(leaderObj.player, startTime + questDuration.TeamPick)
 
@@ -99,8 +101,18 @@ return function()
 
 			--Sends updated list of avaliable players if not full.
 			if #team.members < playersPerTeam then
-				REPickMember:FireClient(leaderObj.player, getNonTeamPlayers())
+				--Make sure all team leaders recieves an updated list.
+				for _, teamLeaderObj in pairs(allTeamLeaderObj) do
+					REPickMember:FireClient(teamLeaderObj.player, getNonTeamPlayers())
+				end
 			else
+				--Removes them so they don't recieve any more updates.
+				for indexLeader, leader in ipairs(allTeamLeaderObj) do
+					if leader.userId == leaderObj.userId then
+						table.remove(allTeamLeaderObj, indexLeader)
+					end
+				end
+				
 				--Empty table to signal GUI should be removed.
 				REPickMember:FireClient(leaderObj.player, {})
 			end

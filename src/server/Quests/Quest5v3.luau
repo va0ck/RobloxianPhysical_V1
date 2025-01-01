@@ -154,7 +154,7 @@ return function()
 			maxPullups = count
 			winnerObj = playerObj
 
-			Remotes.DisplayWinner:FireClient(playerObj.player, true)
+			Remotes.DisplayVictory:FireClient(playerObj.player, true)
 		end
 	end
 

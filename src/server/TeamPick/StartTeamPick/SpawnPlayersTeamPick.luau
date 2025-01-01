@@ -73,10 +73,20 @@ return function()
 					task.wait(0.1)
 				until (humanoid and rootPart and rootPart:IsA("BasePart")) or attempts2 >= MAX_ATTEMPTS
 				
-				if humanoid and rootPart and rootPart:IsA("BasePart") then
+				if humanoid then
 					humanoid.WalkSpeed = 0
 					humanoid.JumpPower = 0
-					rootPart.Anchored = ANCHOR_ROOTPART
+
+					if rootPart and rootPart:IsA("BasePart") then
+						rootPart.Anchored = true
+
+						if not ANCHOR_ROOTPART then
+							task.spawn(function()
+								task.wait(1)
+								rootPart.Anchored = false
+							end)
+						end
+					end
 				end
 			end
 
