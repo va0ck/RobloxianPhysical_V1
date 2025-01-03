@@ -326,18 +326,17 @@ return function()
 	-- Set last standing team if there's only one team left
 	for _, team in pairs(teamsTable) do
 		if not team.isEliminated then
-			local getLastActiveTeam = activeTeams[1]
-			lastStandingTeam.leader = getLastActiveTeam.leader
-			lastStandingTeam.members = getLastActiveTeam.members
-			lastStandingTeam.name = getLastActiveTeam.name
-			lastStandingTeam.color = getLastActiveTeam.color
+			lastStandingTeam.leader = team.leader
+			lastStandingTeam.members = team.members
+			lastStandingTeam.name = team.name
+			lastStandingTeam.color = team.color
 
-			lastStandingTeam.isEliminated = getLastActiveTeam.isEliminated
-			lastStandingTeam.eliminationTime = getLastActiveTeam.eliminationTime
+			lastStandingTeam.isEliminated = team.isEliminated
+			lastStandingTeam.eliminationTime = team.eliminationTime
 
-			lastStandingTeam.questData = getLastActiveTeam.questData
+			lastStandingTeam.questData = team.questData
 			
-			print(string.format("Team %s continues to Quest 5! (Score: %d)", team.name, team.questData.quest4Score))
+			print(string.format("Team %s continues to Quest 5! (Score: %d)", lastStandingTeam.name, lastStandingTeam.questData.quest4Score))
 			break
 		end
 	end

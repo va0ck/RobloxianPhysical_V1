@@ -138,20 +138,31 @@ return function()
 
 
 	-- Picks random if someone wasn't picked within the time limit. 
-	-- First team to end team fill algorithm.
-	for _, teamObj in pairs(teamsTable) do
-		--Example: (If team has 4 players less than 5) and (Still nonTeamPlayers there.)
-		if #teamObj.members < playersPerTeam and (#getNonTeamPlayers() > 0) then
-			repeat
-				local availablePlayers = getNonTeamPlayers()
-				local randomIndex = math.random(1, #availablePlayers)
-				local pickedUserId = availablePlayers[randomIndex].userId
-				table.insert(teamObj.members, pickedUserId)
-
-				--Repeat until (teamObj has 5 or more members) or (nonTeamPlayers are gone.)
-			until (#teamObj.members >= playersPerTeam) or (#getNonTeamPlayers() > 0)
+	local availablePlayers = getNonTeamPlayers()
+	for _,v in pairs(availablePlayers) do
+		for _, teamObj in pairs(teamsTable) do
+			local getCurrentPlayerObj = PlayerModule.GetPlayerObj(v.userId, playersTable)
+			if #teamObj.members < playersPerTeam and (not getCurrentPlayerObj.team) then
+				getCurrentPlayerObj.team = teamObj.name
+				table.insert(teamObj.members, v.userId)
+			end
 		end
 	end
+
+	-- First team to end team fill algorithm. [LIKE BROKEN CODE NGL.]
+	-- for _, teamObj in pairs(teamsTable) do
+	-- 	--Example: (If team has 4 players less than 5) and (Still nonTeamPlayers there.)
+	-- 	if #teamObj.members < playersPerTeam and (#getNonTeamPlayers() > 0) then
+	-- 		repeat
+	-- 			local availablePlayers = getNonTeamPlayers()
+	-- 			local randomIndex = math.random(1, #availablePlayers)
+	-- 			local pickedUserId = availablePlayers[randomIndex].userId
+	-- 			table.insert(teamObj.members, pickedUserId)
+
+	-- 			--Repeat until (teamObj has 5 or more members) or (nonTeamPlayers are gone.)
+	-- 		until (#teamObj.members >= playersPerTeam) or (#getNonTeamPlayers() > 0)
+	-- 	end
+	-- end
 
 	-- Clean up and final teams list.
 	print("Team picking finished!")

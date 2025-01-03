@@ -15,13 +15,15 @@ return function(player: Player)
 			player:LoadCharacter()
 		end
 
-		local message = eliminationMessages[math.random(1, #eliminationMessages)]
-		Remotes.StartTopTimer:FireClient(player, os.time() + 30)
-		task.wait(30)
+
+
+		-- local message = eliminationMessages[math.random(1, #eliminationMessages)]
+		-- Remotes.StartTopTimer:FireClient(player, os.time() + 30)
+		-- task.wait(30)
 		
-		local success, result = SafeTeleport(LobbyPlaceId, {player})
-		if not success then
-			player:Kick(message)
-		end
+		-- local success, _ = SafeTeleport(LobbyPlaceId, {player})
+		-- if not success then
+		-- 	player:Kick(message)
+		-- end
 	end)
 end

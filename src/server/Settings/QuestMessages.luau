@@ -1,8 +1,8 @@
 --!strict
 return {
 	Quest1 = {
-		"Let the games begin!",
-		"Your first challenge: The Treadmill of Doom",
+		"Time for your first punishing quest",
+		"You will have to outlaster your opponents",
 		"Stay on your feet as the speed increases",
 		"Only the top 25 will survive!"
 	},
@@ -15,11 +15,11 @@ return {
 		"Time for some teamwork!",
 		"Collect blocks and circles from your team's area",
 		"Build your path to victory!",
-		"Get your whole team to the finish line"
+		"Get your whole team to the finish line to pass"
 	},
 	Quest3 = {
 		"Keep that momentum going!",
-		"Work together to move your team's ball",
+		"Work together to move your team's boulder",
 		"Get it to Station 2, then back to Station 1",
 		"Only the fastest teams will survive..."
 	},
@@ -27,21 +27,21 @@ return {
 		"The pressure is mounting!",
 		"Grab sand bags from your pile",
 		"Stack them high on your platform",
-		"Most bags in 5 minutes wins!"
+		"Most bags in 100 seconds wins!"
 	},
 	Quest5V1 = {
-		"The final challenge begins!",
-		"Phase 1: Survival of the fittest",
-		"Don't let your guard down..."
+		"Now you must eliminate your own teammates",
+		"Run on the stairs as long as possible...",
+		"First to touch the ground fails!"
 	},
 	Quest5V2 = {
-		"Phase 2: No time to rest!",
-		"The stakes are higher than ever",
-		"Keep pushing forward!"
+		"No time to rest!",
+		"Run across the track in an attempt to tag the player in front of you",
+		"Final 2 players pass"
 	},
 	Quest5V3 = {
 		"The grand finale!",
-		"One last push to victory",
+		"Do the most pull ups in 105 seconds in order to win",
 		"Who will be the ultimate champion?"
 	}
 } :: {[string]: {string}}
