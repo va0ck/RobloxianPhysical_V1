@@ -110,13 +110,6 @@ ReplicatedStorage.Remotes.EnablePullupUI.OnClientEvent:Connect(function(timeout)
         end
     end
     
-    -- Make circle bigger on mobile
-    if isTouchDevice then
-        slideCircle.Size = UDim2.new(0, 60, 0, 60)
-    else
-        slideCircle.Size = UDim2.new(0, 40, 0, 40)
-    end
-    
     -- Function to handle scoring
     local function tryScore(relativeX)
         if not canScore then return end
@@ -160,7 +153,6 @@ ReplicatedStorage.Remotes.EnablePullupUI.OnClientEvent:Connect(function(timeout)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or
            input.UserInputType == Enum.UserInputType.Touch then
             isDragging = true
-            slideCircle.Size = isTouchDevice and UDim2.new(0, 70, 0, 70) or UDim2.new(0, 45, 0, 45)
         end
     end
     
@@ -168,7 +160,6 @@ ReplicatedStorage.Remotes.EnablePullupUI.OnClientEvent:Connect(function(timeout)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or
            input.UserInputType == Enum.UserInputType.Touch then
             isDragging = false
-            slideCircle.Size = isTouchDevice and UDim2.new(0, 60, 0, 60) or UDim2.new(0, 40, 0, 40)
         end
     end
     
