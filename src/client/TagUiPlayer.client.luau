@@ -75,7 +75,8 @@ ActivateTagRE.OnClientEvent:Connect(function(targetModel: Model)
 
         local rootScreenGui = ReactRoblox.createRoot(screenGuiHandle)
         rootScreenGui:render(React.createElement(TagTextLabel, {
-            OnClick = function(time: string) 
+            OnClick = function(time: string)
+                print(`TAGGED PLAYER WITH CLICK!`)
                 Quest5v2TaggedTarget:FireServer()
             end
         }))

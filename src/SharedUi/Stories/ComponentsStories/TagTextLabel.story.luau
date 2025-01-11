@@ -21,6 +21,11 @@ local story = {
             end 
         }))
 
+        task.spawn(function()
+            task.wait(0.25)
+            Quest5v2TagVisible:Fire(true)
+        end)
+
        return function() -- Cleanup your story here
             root:unmount()
        end

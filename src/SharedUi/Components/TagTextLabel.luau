@@ -7,8 +7,7 @@ local FolderNet = require(game.ReplicatedStorage.Packages.FolderNet)
 local ReactSpring = require(game.ReplicatedStorage.Packages.ReactSpring)
 
 local Quest5v2TagVisible = FolderNet.GetBindableEvent("Quest5v2", "TagUiVisible")
-
-local isStudioDev = game:GetService("RunService"):IsStudio()
+local Quest5v2TaggedTarget = FolderNet.GetRemoteEvent("Quest5v2", "TaggedTarget")
 
 type uiTagTextLabelProps = {
     OnClick: () -> (),
@@ -50,17 +49,13 @@ return function(props: uiTagTextLabelProps)
                     --Code to handle.
                     frameApi.start({to = { Position = UDim2.fromScale(0.5, 1.1) }})
                     
-                    if not isStudioDev then
-                        FolderNet.GetRemoteEvent("Quest5v2", "TaggedTarget"):FireServer()
+                    if RunService:IsClient() then
+                        print(`TAGGED PLAYER WITH 'E'!`)
+                        Quest5v2TaggedTarget:FireServer()
                     end
                 end
             end
         end)
-
-        --This is for StoryPlugin to reset back to orgin.
-        if isStudioDev then
-            frameApi.start({to = { Position = UDim2.fromScale(0.5, 0.95) }})
-        end
 
         return function()
             if scriptConnection then

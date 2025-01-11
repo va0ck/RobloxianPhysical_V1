@@ -1,4 +1,5 @@
 --!strict
+local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -97,7 +98,8 @@ return function()
 	--Check for nextIndex function.
 	local function grabNextAvaliablePlayer(playerNum: number)
 		local maxTableLen = #activePlayers
-		local currentCheck = (playerNum + 1) % maxTableLen
+		local currentCheck = ((playerNum) % maxTableLen) + 1
+		print(`Max TableLen: {maxTableLen} \n| PlayerNum: {playerNum} \n| NextIndex: {currentCheck}`)
 
 		return activePlayers[currentCheck]
 	end
@@ -119,6 +121,8 @@ return function()
 	end
 
 	scriptConnection = Quest5v2TaggedTarget.OnServerEvent:Connect(function(plrWhoTagged: Player)
+		print(`TAG TRIGGERED BY {plrWhoTagged.Name}!`)
+
 		local plrWhoTaggedIndex
 		for index,v in ipairs(activePlayers) do
 			if v.player.Name == plrWhoTagged.Name then
@@ -126,17 +130,22 @@ return function()
 			end
 		end
 		local playerInfront = grabNextAvaliablePlayer(plrWhoTaggedIndex)
+		print(`THEY TAGGED {playerInfront.player.Name}!`)
 
 		local plrWhoTaggedChar = plrWhoTagged.Character
 		local playerInfrontChar = playerInfront.player.Character
 		if plrWhoTaggedChar and playerInfrontChar then
+			print(`PASSED THROUGH CHARACTER CHECK TO ANTI-CHEAT CHECK.`)
 			local plrWhoTaggedHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
 			local playerInfrontHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
 
 			if plrWhoTaggedHrp and playerInfrontHrp then
+				print(`PREFORMING DISTANCE CHECK NOW, FACTOR OF 1.5 IS APPLIED.`)
 				local distanceCheck = (plrWhoTaggedHrp.Position - playerInfrontHrp.Position).Magnitude
+				print(`DISTANCE WAS {distanceCheck}\n | NEEDED DISTANCE IS UNDER {TagSettings.TargetPromptDistance * 1.5}!`)
 
 				if distanceCheck < (TagSettings.TargetPromptDistance * 1.5) then
+					print(`WAS IN UNDER DISTANCE, NOW REMOVING PLAYERINFRONT.`)
 					for i, p in ipairs(activePlayers) do
 						if p.player.UserId == playerInfront.player.UserId then
 							table.remove(activePlayers, i)
@@ -147,10 +156,13 @@ return function()
 					playerInfront.isEliminated = true
 					playerInfront:Despawn()
 					respawnToObby(playerInfront.player)
+					print(`{playerInfront.player.Name} IS ELIMINATED!`)
 
 					local nextPlayer = grabNextAvaliablePlayer(plrWhoTaggedIndex)
 					ActivateTagRE:FireClient(plrWhoTagged, nextPlayer.player.Character)
 					return
+				else
+					print(`FAILED THE DISTANCE CHECK, REVERTING BACK TO SAME TARGET.`)
 				end
 			end
 		end
@@ -164,6 +176,7 @@ return function()
 		task.wait(1)
 	end
 	WhiteSound:Play()
+	Quest5v2Sound:Stop()
 
 	--Cleanup Connection
 	if scriptConnection then

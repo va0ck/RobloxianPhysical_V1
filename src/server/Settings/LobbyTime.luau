@@ -4,4 +4,6 @@
 	it in a module script so everything in
 	the folder is known as editable settings.
 ]]--
-return 20
+_G._RPQ_DEVTIME = true
+
+return (_G._RPQ_DEVTIME and 90) or 20
