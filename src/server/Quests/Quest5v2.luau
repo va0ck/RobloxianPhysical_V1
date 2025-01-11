@@ -1,14 +1,18 @@
 --!strict
-local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local TagTool = ReplicatedStorage.Tools.Tag
 
 local Quest5V2Map = workspace.Quest5V2
 
 local Quest5v2Sound = SoundService.Quest5v2 ::Sound
 local WhiteSound = SoundService.Whistle ::Sound
+
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local FolderNet = require(Packages.FolderNet)
+local TagSettings = require(ReplicatedStorage.SharedModules.TagSettings)
+
+local ActivateTagRE = FolderNet.GetRemoteEvent("Quest5v2", "ActivateTag")
+local Quest5v2TaggedTarget = FolderNet.GetRemoteEvent("Quest5v2", "TaggedTarget")
 
 local SettingsFolder = script.Parent.Parent.Settings
 local transitionTime = require(SettingsFolder.TransitionTime)
@@ -20,6 +24,7 @@ local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
 
+local scriptConnection = nil::RBXScriptConnection?
 
 return function()
 	print("Starting Quest 5 V2...")
@@ -55,174 +60,119 @@ return function()
 		Quest5v2Sound.Volume = i
 	end
 
-	-- Function to update who each player can tag
-	local function updateTagTargets()
-		local targets = {}
-		for i, player in ipairs(activePlayers) do
-			local nextIndex = i % #activePlayers + 1
-			targets[player.player.UserId] = activePlayers[nextIndex].player.UserId
-		end
-		return targets
-	end
-
-	-- Initial tag targets
-	local tagTargets = updateTagTargets()
-
-	-- Spawn players and give them tag tools
-	local playerIndex = 1
-	local toolConnections = {} -- Store connections for cleanup
-
+	--Start Transition
 	for _, playerObj in ipairs(activePlayers) do
 		ReplicatedStorage.Remotes.CameraTransition:FireClient(playerObj.player, Quest5V2Map, transitionTime.Quest5V2, questMessages.Quest5V2)
 	end
-
 	task.wait(transitionTime.Quest5V2)
-	WhiteSound:Play()
 
-	for _, playerObj in ipairs(activePlayers) do
-		-- Load character
-		playerObj.player:LoadCharacter()
-
+	--Spawn everyone in then countdown.
+	for playerIndex, plrInfo in ipairs(activePlayers) do
+		local player = plrInfo.player
+		player:LoadCharacter()
+	
 		-- Get spawn part
 		local spawnPart = spawnParts:FindFirstChild("Spawn" .. playerIndex)
 		if spawnPart then
 			-- Wait for character to load
-			repeat task.wait() until playerObj.player.Character and playerObj.player.Character:FindFirstChild("HumanoidRootPart")
+			repeat task.wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
 			-- Position at spawn
-			if playerObj.player.Character then
-				playerObj.player.Character:PivotTo(CFrame.new(spawnPart.Position + Vector3.new(0, 3, 0)))
+			if player.Character then
+				player.Character:PivotTo(CFrame.new(spawnPart.Position + Vector3.new(0, 3, 0)))
+				
+				local hrp = player.Character:FindFirstChild("HumanoidRootPart") ::Part
+				if hrp then
+					hrp.Anchored = true
+				end
+				ReplicatedStorage.Remotes.StartTimer:FireClient(player, os.time() + 3)
+			end
+		end
+	end
+
+	-- Wait for countdown
+	task.wait(3)
+	WhiteSound:Play()
+
+	--Check for nextIndex function.
+	local function grabNextAvaliablePlayer(playerNum: number)
+		local maxTableLen = #activePlayers
+		local currentCheck = (playerNum + 1) % maxTableLen
+
+		return activePlayers[currentCheck]
+	end
+
+	--Start TagSystem
+	for playerIndex, plrInfo in ipairs(activePlayers) do
+		local player = plrInfo.player
+
+		if player.Character then
+			local hrp = player.Character:FindFirstChild("HumanoidRootPart") ::Part
+			if hrp then
+				hrp.Anchored = false
 			end
 
-			-- Give and equip tag tool
-			local tool = TagTool:Clone()
-			tool.CanBeDropped = false
+			--Grabbing non-elim player.
+			local nextPlayer = grabNextAvaliablePlayer(playerIndex)
+			ActivateTagRE:FireClient(player, nextPlayer.player.Character)
+		end
+	end
 
-			-- Handle tagging with debounce
-			local canTag = true
-			local connection = tool.Handle.Touched:Connect(function(hit)
-				if not canTag then return end
+	scriptConnection = Quest5v2TaggedTarget.OnServerEvent:Connect(function(plrWhoTagged: Player)
+		local plrWhoTaggedIndex
+		for index,v in ipairs(activePlayers) do
+			if v.player.Name == plrWhoTagged.Name then
+				plrWhoTaggedIndex = index
+			end
+		end
+		local playerInfront = grabNextAvaliablePlayer(plrWhoTaggedIndex)
 
-				if hit.Parent then
-					local hitPlayer = Players:GetPlayerFromCharacter(hit.Parent)
-					if hitPlayer and hitPlayer.UserId == tagTargets[playerObj.player.UserId] then
-						canTag = false -- Debounce
+		local plrWhoTaggedChar = plrWhoTagged.Character
+		local playerInfrontChar = playerInfront.player.Character
+		if plrWhoTaggedChar and playerInfrontChar then
+			local plrWhoTaggedHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
+			local playerInfrontHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
 
-						-- Valid tag
-						local hitPlayerObj = PlayerModule.GetPlayerObj(hitPlayer.UserId, playersTable)
-						if hitPlayerObj and not hitPlayerObj.isEliminated then
-							-- Eliminate tagged player
-							hitPlayerObj.isEliminated = true
-							hitPlayerObj:Despawn()
-							print(string.format("Player %s tagged and eliminated Player %s!", playerObj.player.Name, hitPlayer.Name))
-							respawnToObby(hitPlayer)
+			if plrWhoTaggedHrp and playerInfrontHrp then
+				local distanceCheck = (plrWhoTaggedHrp.Position - playerInfrontHrp.Position).Magnitude
 
-							-- Remove from active players
-							for i, p in ipairs(activePlayers) do
-								if p.player.UserId == hitPlayer.UserId then
-									table.remove(activePlayers, i)
-									break
-								end
-							end
-
-							-- Update tag targets if more than one player remains
-							if #activePlayers > 2 then
-								-- Clean up old tools
-								for _, conn in pairs(toolConnections) do
-									conn:Disconnect()
-								end
-								toolConnections = {}
-
-								-- Update targets and respawn remaining players
-								tagTargets = updateTagTargets()
-
-								-- Respawn remaining players with new tools
-								local respawnIndex = 1
-								for _, p in ipairs(activePlayers) do
-									if not p.isEliminated then
-										-- Respawn player
-										p.player:LoadCharacter()
-
-										-- Wait for character and position
-										local respawnPart = spawnParts:FindFirstChild("Spawn" .. respawnIndex)
-										if respawnPart then
-											repeat task.wait() until p.player.Character and p.player.Character:FindFirstChild("HumanoidRootPart")
-											
-											if p.player.Character then
-												p.player.Character:PivotTo(CFrame.new(respawnPart.Position + Vector3.new(0, 3, 0)))
-											end
-
-											-- Give new tool
-											local newTool = TagTool:Clone()
-											newTool.CanBeDropped = false
-											newTool.Parent = p.player.Character
-
-											respawnIndex += 1
-										end
-									end
-								end
-
-								-- Announce new targets
-								for _, p in ipairs(activePlayers) do
-									local targetObj = PlayerModule.GetPlayerObj(tagTargets[p.player.UserId], playersTable)
-									if targetObj then
-										print(string.format("Player %s can now tag Player %s", p.player.Name, targetObj.player.Name))
-									end
-								end
-							else
-								-- We have exactly 2 players left, clean up and proceed
-								print("2 players remaining! Moving to next challenge.")
-								WhiteSound:Play()
-								Quest5v2Sound:Stop()
-
-								-- Clean up all connections
-								for _, conn in pairs(toolConnections) do
-									conn:Disconnect()
-								end
-
-								-- Update lastStandingTeam with the remaining players
-								lastStandingTeam.members = {}
-								lastStandingTeam.isEliminated = false
-								
-								for _, p in ipairs(activePlayers) do
-									table.insert(lastStandingTeam.members, p.player.UserId)
-									p:Despawn() -- Despawn them for the next challenge
-								end
-
-								return -- Exit the function to proceed to next challenge
-							end
+				if distanceCheck < (TagSettings.TargetPromptDistance * 1.5) then
+					for i, p in ipairs(activePlayers) do
+						if p.player.UserId == playerInfront.player.UserId then
+							table.remove(activePlayers, i)
+							break
 						end
-
-						task.wait(0.5) -- Debounce time
-						canTag = true
 					end
+
+					playerInfront.isEliminated = true
+					playerInfront:Despawn()
+					respawnToObby(playerInfront.player)
+
+					local nextPlayer = grabNextAvaliablePlayer(plrWhoTaggedIndex)
+					ActivateTagRE:FireClient(plrWhoTagged, nextPlayer.player.Character)
+					return
 				end
-			end)
-
-			table.insert(toolConnections, connection)
-
-			tool.Parent = playerObj.player.Character
-			playerIndex += 1
+			end
 		end
-	end
 
-	-- Announce initial targets
-	for _, playerObj in ipairs(activePlayers) do
-		local targetObj = PlayerModule.GetPlayerObj(tagTargets[playerObj.player.UserId], playersTable)
-		if targetObj then
-			print(string.format("Player %s can tag Player %s", playerObj.player.Name, targetObj.player.Name))
-		end
-	end
+		ActivateTagRE:FireClient(plrWhoTagged, plrWhoTaggedChar)
+	end)
 
-	-- Wait until only 1 player remains
+	
+	-- Wait until only 2 players remains
 	while #activePlayers > 2 do
 		task.wait(1)
 	end
+	WhiteSound:Play()
 
-	-- Clean up all connections
-	for _, connection in pairs(toolConnections) do
-		connection:Disconnect()
+	--Cleanup Connection
+	if scriptConnection then
+		scriptConnection:Disconnect()
+		scriptConnection = nil
 	end
+
+	--Cleanup TagPrompts
+	ActivateTagRE:FireAllClients()
 
 	-- Update lastStandingTeam with the remaining players
 	lastStandingTeam.members = {}

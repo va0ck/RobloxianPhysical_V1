@@ -7,6 +7,9 @@
       "SharedModules": {
         "$path": "src/shared"
       },
+      "SharedUi": {
+        "$path": "src/SharedUi"
+      },
       "Packages": {
         "$path": "Packages"
       }

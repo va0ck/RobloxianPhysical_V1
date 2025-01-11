@@ -2,7 +2,7 @@
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local FolderNet = require(ReplicatedStorage.Packages["folder-net"])
+local FolderNet = require(ReplicatedStorage.Packages.FolderNet)
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local REPickMember = FolderNet.GetRemoteEvent("TeamPick", "PickMember")

@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local FolderNet = require(ReplicatedStorage.Packages["folder-net"])
+local FolderNet = require(ReplicatedStorage.Packages.FolderNet)
 local AvatarThumbnailModule = require(ReplicatedStorage.SharedModules.AvatarThumbnail)
 
 local REPickMember = FolderNet.GetRemoteEvent("TeamPick", "PickMember")
