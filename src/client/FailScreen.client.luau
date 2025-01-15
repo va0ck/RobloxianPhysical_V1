@@ -59,6 +59,8 @@ end
 
 --Spectate Ui
 local function spectateUi()
+    updatePlayers()
+
     local newHandle = Instance.new("ScreenGui")
     newHandle.Name = "SpectateUi"
     newHandle.IgnoreGuiInset = true
