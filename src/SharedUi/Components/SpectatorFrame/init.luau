@@ -1,9 +1,8 @@
 --!strict
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local LOBBY_ID = 94222366715596
-local SafeTeleport = require(game.ReplicatedStorage.SharedModules.SafeTeleport)
+local FolderNet = require(game.ReplicatedStorage.Packages.FolderNet)
+local TeleportLobby = FolderNet.GetRemoteEvent("GAME", "TELEPORT_LOBBY")
 
 local React = require(game.ReplicatedStorage.Packages.React)
 local ReactSpring = require(game.ReplicatedStorage.Packages.ReactSpring)
@@ -62,7 +61,7 @@ return function(props: SpectatorFrameType)
 
             OnClick = function()
                 if not RunService:IsStudio() then
-                    SafeTeleport(LOBBY_ID, {Players.LocalPlayer}) 
+                    TeleportLobby:FireServer()
                 else
                     print(`IN STUDIO CURRENTLY AND CANNOT TELEPORT.`)
                 end

@@ -4,8 +4,8 @@ local LobbyPlaceId = 94222366715596
 
 --Services
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SafeTeleport = require(ReplicatedStorage.SharedModules.SafeTeleport)
+local SafeTeleport = require(game.ReplicatedStorage.SharedModules.SafeTeleport)
+
 
 return function()
 	Players.PlayerAdded:Connect(function(player)

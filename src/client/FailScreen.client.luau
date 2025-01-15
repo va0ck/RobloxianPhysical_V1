@@ -34,7 +34,7 @@ local function updateSpectator()
     local foundPlayer = Players:FindFirstChild(playerList[currentIndex]) ::Player
 
     if foundPlayer then
-        currentUsername = foundPlayer.Name
+        currentUsername = (foundPlayer.Name)
         currentCamera.CameraSubject = foundPlayer.Character
     end
 end

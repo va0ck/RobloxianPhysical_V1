@@ -28,6 +28,13 @@ local startQuest5V1 = require(script.Quests.Quest5v1)
 local startQuest5V2 = require(script.Quests.Quest5v2)
 local startQuest5V3 = require(script.Quests.Quest5v3)
 
+--[[Teleport Back]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local FolderNet = require(ReplicatedStorage.Packages.FolderNet)
+local LOBBY_ID = 94222366715596
+local TeleportLobby = FolderNet.GetRemoteEvent("GAME", "TELEPORT_LOBBY")
+local SafeTeleport = require(game.ReplicatedStorage.SharedModules.SafeTeleport)
+
 -----------------------------------
 --//MAIN FUNCTIONS ROLL THROUGH//--
 -----------------------------------
@@ -77,6 +84,10 @@ Players.PlayerRemoving:Connect(function(player)
 		already left the game.
 	]]
     --respawnToObby(player)
+end)
+
+TeleportLobby.OnServerEvent:Connect(function(plr)
+	SafeTeleport(LOBBY_ID, {plr})
 end)
 
 startGame()
