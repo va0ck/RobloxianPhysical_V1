@@ -152,7 +152,7 @@ return function(props)
             TextColor = Color3.new(1,1,1),
 
             OnClick = function()
-                if not RunService.IsStudio() then
+                if not RunService:IsStudio() then
                     SafeTeleport(LOBBY_ID, {Players.LocalPlayer}) 
                 else
                     print(`IN STUDIO CURRENTLY AND CANNOT TELEPORT.`)
