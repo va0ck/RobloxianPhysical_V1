@@ -1,9 +1,8 @@
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SafeTeleport = require(ReplicatedStorage.SharedModules.SafeTeleport)
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
-local LobbyPlaceId = 94222366715596
+local FolderNet = require(ReplicatedStorage.Packages.FolderNet)
+local FailedGame = FolderNet.GetRemoteEvent("GAME", "FAILED")
 
 --Modules
 local eliminationMessages = require(script.Parent.Parent.Settings.EliminationMessages)
@@ -11,19 +10,7 @@ local eliminationMessages = require(script.Parent.Parent.Settings.EliminationMes
 --MainFunction
 return function(player: Player)
 	task.delay(2, function()
-		if not player.Character then
-			player:LoadCharacter()
-		end
-
-
-
-		-- local message = eliminationMessages[math.random(1, #eliminationMessages)]
-		-- Remotes.StartTopTimer:FireClient(player, os.time() + 30)
-		-- task.wait(30)
-		
-		-- local success, _ = SafeTeleport(LobbyPlaceId, {player})
-		-- if not success then
-		-- 	player:Kick(message)
-		-- end
+		local message = eliminationMessages[math.random(1, #eliminationMessages)]
+		FailedGame:FireClient(player, message)
 	end)
 end

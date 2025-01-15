@@ -159,7 +159,6 @@ return function()
 	end
 
 	-- Eliminate the loser
-	Quest5v3Sound:Stop()
 	WhiteSound:Play()
 	for _, playerObj in ipairs(activePlayers) do
 		if playerObj.userId ~= winnerObj.userId then
