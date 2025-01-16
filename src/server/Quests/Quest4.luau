@@ -220,6 +220,7 @@ return function()
 	local team2Score = -1
 
 	if amountOfTeamsMade == 1 then
+		print(`QUEST4 TO ONE TEAM MODE.`)
 		team2Score = ifOneTeamOnlyThenWhatScoreMinimum
 		local scoreDisplay = scoreDisplayers:FindFirstChild("TeamScore" .. 2)
 

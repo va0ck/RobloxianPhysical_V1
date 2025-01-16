@@ -137,7 +137,7 @@ return function()
 		if plrWhoTaggedChar and playerInfrontChar then
 			print(`PASSED THROUGH CHARACTER CHECK TO ANTI-CHEAT CHECK.`)
 			local plrWhoTaggedHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
-			local playerInfrontHrp = plrWhoTaggedChar:FindFirstChild("HumanoidRootPart") ::Part
+			local playerInfrontHrp = playerInfrontChar:FindFirstChild("HumanoidRootPart") ::Part
 
 			if plrWhoTaggedHrp and playerInfrontHrp then
 				print(`PREFORMING DISTANCE CHECK NOW, FACTOR OF 1.5 IS APPLIED.`)

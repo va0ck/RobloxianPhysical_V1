@@ -181,7 +181,7 @@ ReplicatedStorage.Remotes.EnablePullupUI.OnClientEvent:Connect(function(timeout)
             targetX = math.clamp(targetX, 0, frameSize.X - circleSize)
             
             -- Update position
-            slideCircle.Position = UDim2.new(0, targetX, slideCircle.Position.Y.Scale, 0)
+            slideCircle.Position = UDim2.new(0, targetX + 40, slideCircle.Position.Y.Scale, 0)
             
             -- Calculate relative position for scoring
             local relativeX = targetX / (frameSize.X - circleSize)
