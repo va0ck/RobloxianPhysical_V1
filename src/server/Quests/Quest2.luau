@@ -23,12 +23,7 @@ local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 return function()
-	Quest2Sound.Volume = 0
 	Quest2Sound:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait(0.01)
-		Quest2Sound.Volume = i
-	end
 
 	print("Starting Quest 2...")
 	--// wait for transition on the client

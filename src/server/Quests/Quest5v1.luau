@@ -32,12 +32,7 @@ return function()
 		return
 	end
 
-	Quest5v1Sound.Volume = 0
 	Quest5v1Sound:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait(0.01)
-		Quest5v1Sound.Volume = i
-	end
 
 	local stairsClimbers = Quest5V1Map.StairClimbers
 	local floorHitbox = Quest5V1Map.FloorHitbox

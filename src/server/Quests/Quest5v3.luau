@@ -51,12 +51,7 @@ return function()
 		return
 	end
 
-	Quest5v3Sound.Volume = 0
 	Quest5v3Sound:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait(0.01)
-		Quest5v3Sound.Volume = i
-	end
 
 	for _, playerObj in ipairs(activePlayers) do
 		ReplicatedStorage.Remotes.CameraTransition:FireClient(playerObj.player, Quest5V3Map, transitionTime.Quest5V3, questMessages.Quest5V3)

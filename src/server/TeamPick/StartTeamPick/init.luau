@@ -32,12 +32,7 @@ local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 
 --Main Function
 return function()
-	TeamPick.Volume = 0
 	TeamPick:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait()
-		TeamPick.Volume = i
-	end
 
 	print("Starting Team Pick...")
 	spawnPlayersTeamPick()

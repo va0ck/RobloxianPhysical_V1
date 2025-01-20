@@ -21,12 +21,7 @@ local playersTable = require(script.Parent.Parent.Tables).playersTable
 
 --Main Function
 return function()
-	Quest1Sound.Volume = 0
 	Quest1Sound:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait(0.01)
-		Quest1Sound.Volume = i
-	end
 
 	--// spawning characters in their treadmills
 	local treadmills = Quest1Map.Treadmills

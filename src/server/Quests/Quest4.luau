@@ -51,12 +51,7 @@ return function()
 	-- 	return
 	-- end
 
-	Quest4Sound.Volume = 0
 	Quest4Sound:Play()
-	for i = 0, 0.5, 0.02 do
-		task.wait(0.01)
-		Quest4Sound.Volume = i
-	end
 
 	--// wait for transition on the client
 	for _, plrInfo in pairs(playersTable) do
