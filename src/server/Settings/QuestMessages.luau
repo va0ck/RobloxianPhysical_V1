@@ -7,21 +7,21 @@ return {
 		"Only the top 25 will survive!"
 	},
 	TeamPick = {
-		"The survivors will now form teams!",
+		"The survivors will now form teams",
 		"Top players become team leaders...",
 		"Choose your teammates wisely!"
 	},
 	Quest2 = {
 		"Time for some teamwork!",
-		"Collect blocks and circles from your team's area",
+		"Collect blocks and circles!",
 		"Build your path to victory!",
-		"Get your whole team to the finish line to pass...."
+		"Get your whole team across!"
 	},
 	Quest3 = {
 		"Keep that momentum going!",
 		"Work together to move the boulder",
-		"Get to Station 2, then back to Station 1",
-		"Only the fastest teams will survive..."
+		"Get to Station 2, then back",
+		"Only the fastest teams will pass"
 	},
 	Quest4 = {
 		"The pressure is mounting!",
@@ -36,12 +36,12 @@ return {
 	},
 	Quest5V2 = {
 		"No time to rest!",
-		"Run across the track and tag the player in front of you....",
+		"Run across the track and tag your target",
 		"Final 2 players pass"
 	},
 	Quest5V3 = {
 		"The grand finale!",
-		"Do the most pull ups in 100 seconds in order to win",
+		"Do the most pull ups in 100 seconds to win",
 		"Who will be the ultimate champion?"
 	}
 } :: {[string]: {string}}

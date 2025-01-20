@@ -5,6 +5,7 @@ registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
+Knit = "sleitnick/knit@1.7.0"
 FolderNet = "va0ck/folder-net@1.0.0"
 
 React = "jsdotlua/react@17.2.1"

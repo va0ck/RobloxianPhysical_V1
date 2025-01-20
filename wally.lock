@@ -103,6 +103,26 @@ version = "0.4.1"
 dependencies = []
 
 [[package]]
+name = "sleitnick/comm"
+version = "1.0.1"
+dependencies = [["Option", "sleitnick/option@1.0.5"], ["Promise", "evaera/promise@4.0.0"], ["Signal", "sleitnick/signal@2.0.1"]]
+
+[[package]]
+name = "sleitnick/knit"
+version = "1.7.0"
+dependencies = [["Comm", "sleitnick/comm@1.0.1"], ["Promise", "evaera/promise@4.0.0"]]
+
+[[package]]
+name = "sleitnick/option"
+version = "1.0.5"
+dependencies = []
+
+[[package]]
+name = "sleitnick/signal"
+version = "2.0.1"
+dependencies = []
+
+[[package]]
 name = "va0ck/folder-net"
 version = "1.0.0"
 dependencies = []
@@ -110,4 +130,4 @@ dependencies = []
 [[package]]
 name = "va0ck/robloxianphysical"
 version = "0.1.0"
-dependencies = [["FolderNet", "va0ck/folder-net@1.0.0"], ["React", "jsdotlua/react@17.2.1"], ["ReactRoblox", "jsdotlua/react-roblox@17.2.1"], ["ReactSpring", "chriscerie/react-spring@2.0.0"]]
+dependencies = [["FolderNet", "va0ck/folder-net@1.0.0"], ["Knit", "sleitnick/knit@1.7.0"], ["React", "jsdotlua/react@17.2.1"], ["ReactRoblox", "jsdotlua/react-roblox@17.2.1"], ["ReactSpring", "chriscerie/react-spring@2.0.0"]]
