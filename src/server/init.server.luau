@@ -1,5 +1,6 @@
 --!strict
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
 
 -- [[Required Modules]]
 local PlayerModule = require(script.OOP.PlayerObject)
@@ -36,14 +37,17 @@ local LOBBY_ID = 94222366715596
 local TeleportLobby = FolderNet.GetRemoteEvent("GAME", "TELEPORT_LOBBY")
 local SafeTeleport = require(game.ReplicatedStorage.SharedModules.SafeTeleport)
 
+--[[DON'T MUTE AUDIOS]]
+local EXEMPT_AUDIOS = require(script.Settings.EXEMPT_AUDIOS)
+
 -----------------------------------
 --//MAIN FUNCTIONS ROLL THROUGH//--
 -----------------------------------
 
 local function startGame()
 	--Setup to make audios muteable.
-	for _, v in pairs(workspace:GetDescendants()) do
-		if v:IsA("Sound") then
+	for _, v in pairs(SoundService:GetDescendants()) do
+		if v:IsA("Sound") and (not table.find(EXEMPT_AUDIOS, v.Name)) then
 			v:AddTag("Muteable")
 			v:SetAttribute("NormalVolume", REGULAR_VOLUME)
 			v.Volume = REGULAR_VOLUME
