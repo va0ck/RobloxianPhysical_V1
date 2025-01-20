@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 
 -- [[Required Modules]]
 local PlayerModule = require(script.OOP.PlayerObject)
+local REGULAR_VOLUME = require(script.Settings.REGULAR_VOLUME)
 
 -- [[Tables]]
 local playersTable = require(script.Tables).playersTable
@@ -40,6 +41,16 @@ local SafeTeleport = require(game.ReplicatedStorage.SharedModules.SafeTeleport)
 -----------------------------------
 
 local function startGame()
+	--Setup to make audios muteable.
+	for _, v in pairs(workspace:GetDescendants()) do
+		if v:IsA("Sound") then
+			v:AddTag("Muteable")
+			v:SetAttribute("NormalVolume", REGULAR_VOLUME)
+			v.Volume = REGULAR_VOLUME
+		end
+	end
+
+	--Main Linear Flow.
     manageLobby()
     setUpPlayersTable()
     setUpGameForStart()
