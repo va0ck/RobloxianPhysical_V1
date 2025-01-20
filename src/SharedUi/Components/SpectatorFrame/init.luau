@@ -96,21 +96,11 @@ return function(props: SpectatorFrameType)
         SpectatorBarUI = e(SpectatorBar, {
             Text = currentUsername,
             LeftClick = function()
-                if RunService:IsStudio() then
-                    print(`CAN'T RUN SPECTATE ON STUDIO CODE.`)
-                    return
-                end
-
                 --Stuff
                 updatePlayers()
                 setCurrentUsername(nextPlayer())
             end,
             RightClick = function()
-                if RunService:IsStudio() then
-                    print(`CAN'T RUN SPECTATE ON STUDIO CODE.`)
-                    return
-                end
-
                 --Stuff
                 updatePlayers()
                 setCurrentUsername(lastPlayer())

@@ -25,6 +25,7 @@ return {
 		end
 	end,
 	
+	AwardBadge = require(script.AwardBadge),
 	manageLobby = require(script.ManageLobby),
 	createTeams = require(script.CreateTeams),
 	respawnToObby = require(script.RespawnToObby),

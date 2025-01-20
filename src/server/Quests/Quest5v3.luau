@@ -2,6 +2,8 @@
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local WINNER_BADGE = 3407677374850127
+
 local Remotes = ReplicatedStorage.Remotes
 local Quest5V3Map = workspace.Quest5V3
 
@@ -15,6 +17,7 @@ local questMessages = require(SettingsFolder.QuestMessages)
 
 local PlayerModule = require(script.Parent.Parent.OOP.PlayerObject)
 local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
+local safeAwardBadge = require(script.Parent.Parent.Functions).AwardBadge
 
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
@@ -169,4 +172,5 @@ return function()
 	end
 
 	print(string.format("Quest 5 V3 finished! Winner: %s with %d pullups!", winnerObj.player.Name, maxPullups))
+	safeAwardBadge(winnerObj.player, WINNER_BADGE)
 end
