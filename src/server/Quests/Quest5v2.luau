@@ -23,11 +23,13 @@ local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 
 local scriptConnection = nil::RBXScriptConnection?
 
 return function()
 	print("Starting Quest 5 V2...")
+	_A_QUESTCOUNT.CURRENT_COUNT = 6
 	--// wait for transition on the client
 	print("DOING TRANSITION")
 

@@ -19,10 +19,12 @@ local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 
 
 return function()
 	print("Starting Quest 5 V1...")
+	_A_QUESTCOUNT.CURRENT_COUNT = 5
 	--// wait for transition on the client
 	print("DOING TRANSITION")
 

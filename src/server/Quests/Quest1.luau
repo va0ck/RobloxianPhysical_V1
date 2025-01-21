@@ -18,10 +18,12 @@ local questMessages = require(SettingsFolder.QuestMessages)
 local PlayerModule = require(script.Parent.Parent.OOP.PlayerObject)
 local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 local playersTable = require(script.Parent.Parent.Tables).playersTable
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 
 --Main Function
 return function()
 	Quest1Sound:Play()
+	_A_QUESTCOUNT.CURRENT_COUNT = 1
 
 	--// spawning characters in their treadmills
 	local treadmills = Quest1Map.Treadmills

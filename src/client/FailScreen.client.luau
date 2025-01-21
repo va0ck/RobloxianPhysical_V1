@@ -25,14 +25,18 @@ local function spectateUi()
 end
 
 --Main Recieve
-FailedGame.OnClientEvent:Connect(function(eliminationMsg :string)
+FailedGame.OnClientEvent:Connect(function(eliminationMsg :string, rewardedPoints: number)
     local newHandle = Instance.new("ScreenGui")
     newHandle.Name = "FailScreenUi"
     newHandle.IgnoreGuiInset = true
     newHandle.Parent = Players.LocalPlayer.PlayerGui
 
+    print(`C | END POINTS: {rewardedPoints}`)
+
     local failMountUi = ReactRoblox.createRoot(newHandle)
     failMountUi:render(React.createElement(FailedScreen, {
+        RewardValue = rewardedPoints,
+
         SpectateEvent = function()
             spectateUi()
             

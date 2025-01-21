@@ -1,0 +1,5 @@
+local QUEST_COUNT = {}
+
+QUEST_COUNT.CURRENT_COUNT = 0
+
+return QUEST_COUNT

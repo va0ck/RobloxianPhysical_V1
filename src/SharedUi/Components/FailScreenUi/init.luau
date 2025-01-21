@@ -1,5 +1,4 @@
 --!strict
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local React = require(game.ReplicatedStorage.Packages.React)
@@ -11,6 +10,7 @@ local TeleportLobby = FolderNet.GetRemoteEvent("GAME", "TELEPORT_LOBBY")
 local e = React.createElement
 local FailLogo = require(script.FailLogo)
 local DefaultButton = require(script.Parent.DefaultButton)
+local RewardScrollLabel = require(game.ReplicatedStorage.SharedUi.Components.RewardScroll)
 
 return function(props)
     local transparencyNumberSequence, setTransparencyNumberSequence = React.useState(
@@ -29,14 +29,18 @@ return function(props)
             Position = UDim2.fromScale(0.5, 0.5), 
         }
     end)
-    
     local failButtonStyle, failButtonApi = ReactSpring.useSpring(function()
         return {
             Position1 = UDim2.fromScale(0.39, 1.3),
             Position2 = UDim2.fromScale(0.61, 1.3)
         }
     end)
-
+    local rewardFrameStyle, rewardFrameApi = ReactSpring.useSpring(function()
+        return {
+            Size = UDim2.fromScale(0.4, 0.825),
+            Position = UDim2.fromScale(0.5,0.5),
+        }
+    end)
 
 
     React.useEffect(function()
@@ -128,7 +132,6 @@ return function(props)
             Offset = transparencyOffset,
             Transparency = transparencyNumberSequence
         }),
-
         FailLogoFrame = e("Frame", {
             Size = failLogoStyle.Size,
             Position = failLogoStyle.Position,
@@ -139,6 +142,18 @@ return function(props)
                 AspectRatio = 2,
             }),
             FailLogoElement = e(FailLogo)
+        }),
+        RewardFrame = React.createElement(RewardScrollLabel, {
+            Position = rewardFrameStyle.Position,
+            AnchorPoint = Vector2.new(0.5,0.5),
+            Size = rewardFrameStyle.Size,
+
+            NumDigits = 3,
+            delayTime = 2.0,
+            Value = props.RewardValue,
+
+            Font = Font.new("rbxasset://fonts/families/Oswald.json"),
+            TextColor3 = Color3.new(1,1,1)
         }),
 
         HomeButton = e(DefaultButton, {
@@ -183,6 +198,10 @@ return function(props)
                 failButtonApi.start({
                     Position1 = UDim2.fromScale(0.39, 1.3),
                     Position2 = UDim2.fromScale(0.61, 1.3)
+                })
+                rewardFrameApi.start({
+                    Size = UDim2.fromScale(0.01, 0.01),
+                    Position = UDim2.fromScale(-0.5, 0.5),
                 })
 
                 --Swipe Effect

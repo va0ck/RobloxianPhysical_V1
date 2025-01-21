@@ -17,9 +17,11 @@ local PlayerModule = require(script.Parent.Parent.OOP.PlayerObject)
 local respawnToObby = require(script.Parent.Parent.Functions).respawnToObby
 local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 
 return function()
 	Quest3Sound:Play()
+	_A_QUESTCOUNT.CURRENT_COUNT = 3
 
 	print("Starting Quest 3...")
 	--// wait for transition on the client

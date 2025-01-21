@@ -1,6 +1,7 @@
 --!strict
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local FolderNet = require(ReplicatedStorage.Packages.FolderNet)
 
 local WINNER_BADGE = 3407677374850127
 
@@ -21,10 +22,13 @@ local safeAwardBadge = require(script.Parent.Parent.Functions).AwardBadge
 
 local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
+local ADDPOINTS_DATASTORE = FolderNet.GetBindableEvent("DATASTORE", "ADDPOINTS")
 
 
 return function()
 	print("Starting Quest 5 V3...")
+	_A_QUESTCOUNT.CURRENT_COUNT = 7
 	--// wait for transition on the client
 
 	local questTime = questsDuration.Quest5V3
@@ -152,7 +156,8 @@ return function()
 			maxPullups = count
 			winnerObj = playerObj
 
-			Remotes.DisplayVictory:FireClient(playerObj.player, true)
+			Remotes.DisplayVictory:FireClient(playerObj.player, (_A_QUESTCOUNT.CURRENT_COUNT * 10) + 50)
+			ADDPOINTS_DATASTORE:Fire(playerObj.player, (_A_QUESTCOUNT.CURRENT_COUNT * 10) + 50)
 		end
 	end
 

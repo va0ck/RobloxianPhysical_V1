@@ -22,9 +22,11 @@ local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
 local teamsTable = require(script.Parent.Parent.Tables).teamsTable
 local allTables = require(script.Parent.Parent.Tables)
+local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 
 return function()
 	print("Starting Quest 4...")
+	_A_QUESTCOUNT.CURRENT_COUNT = 4
 
 	-- Check if there's only one team active
 	local activeTeams = {}
