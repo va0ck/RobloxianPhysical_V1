@@ -24,7 +24,7 @@ local lastStandingTeam = require(script.Parent.Parent.Tables).lastStandingTeam
 local playersTable = require(script.Parent.Parent.Tables).playersTable
 local _A_QUESTCOUNT = require(script.Parent.Parent.Quests.A_QUESTCOUNT)
 local ADDPOINTS_DATASTORE = FolderNet.GetBindableEvent("DATASTORE", "ADDPOINTS")
-
+local ADDWIN_DATASTORE = FolderNet.GetBindableEvent("DATASTORE", "ADDWIN")
 
 return function()
 	print("Starting Quest 5 V3...")
@@ -158,6 +158,7 @@ return function()
 
 			Remotes.DisplayVictory:FireClient(playerObj.player, (_A_QUESTCOUNT.CURRENT_COUNT * 10) + 50)
 			ADDPOINTS_DATASTORE:Fire(playerObj.player, (_A_QUESTCOUNT.CURRENT_COUNT * 10) + 50)
+			ADDWIN_DATASTORE:Fire(playerObj.player)
 		end
 	end
 

@@ -34,7 +34,7 @@ return function(player :Player, badgeId :number)
 				warn("Error while awarding badge:", result)
 			elseif not result then
 				-- the AwardBadge function did not award a badge
-				warn("Failed to award badge.")
+				print(`Failed to award badge to {player.Name}.`)
 			end
 		end
 	else
