@@ -1,4 +1,5 @@
 --!strict
+local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -117,6 +118,10 @@ return function()
 	end
 
 	scriptConnection = Quest5v2TaggedTarget.OnServerEvent:Connect(function(plrWhoTagged: Player)
+		if #activePlayers <= 2 then
+			return
+		end
+
 		print(`TAG TRIGGERED BY {plrWhoTagged.Name}!`)
 
 		local plrWhoTaggedIndex
@@ -170,7 +175,27 @@ return function()
 	-- Wait until only 2 players remains
 	while #activePlayers > 2 do
 		task.wait(1)
+
+		--Check if player(s) are still in the game.
+		local curretnIngamePlayers = Players:GetPlayers()
+		for indexPlr,inGamePlr in ipairs(activePlayers) do
+			if not table.find(curretnIngamePlayers, inGamePlr.player) then
+				table.remove(activePlayers, indexPlr)
+
+				--Restart TagSystem to include current players.
+				for playerIndex, plrInfo in ipairs(activePlayers) do
+					local player = plrInfo.player
+			
+					if player.Character then
+						--Grabbing non-elim player.
+						local nextPlayer = grabNextAvaliablePlayer(playerIndex)
+						ActivateTagRE:FireClient(player, nextPlayer.player.Character)
+					end
+				end
+			end
+		end
 	end
+
 	WhiteSound:Play()
 	Quest5v2Sound:Stop()
 
