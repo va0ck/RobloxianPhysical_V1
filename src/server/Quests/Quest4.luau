@@ -92,7 +92,7 @@ return function()
 		end
 
 		-- Spawn players spread out
-		local spawnPart = teamSpawns:FindFirstChild("Spawn" .. i)
+		local spawnPart = teamSpawns:FindFirstChild("Spawn" .. amountOfTeamsMade)
 		if spawnPart then
 			for _, memberId in ipairs(team.members) do
 				local memberObj = PlayerModule.GetPlayerObj(memberId, playersTable)
@@ -115,7 +115,7 @@ return function()
 		end
 
 		-- Set up sand pile prompts
-		local teamSandPile = sandPiles:FindFirstChild("Team" .. i .. "Sand")
+		local teamSandPile = sandPiles:FindFirstChild("Team" .. amountOfTeamsMade .. "Sand")
 		for _, sandPile in ipairs(teamSandPile:GetChildren()) do
 			local prompt = Instance.new("ProximityPrompt")
 			prompt.ActionText = "Pick Up Bag"
@@ -143,11 +143,11 @@ return function()
 		end
 
 		-- Set up bag lifter
-		local teamBagLifter = bagLifters:FindFirstChild("BagLifter" .. i)
+		local teamBagLifter = bagLifters:FindFirstChild("BagLifter" .. amountOfTeamsMade)
 		if teamBagLifter then
 			local interactPart = teamBagLifter:FindFirstChild("InteractPart")
 			local spawnSurface = teamBagLifter:FindFirstChild("SpawnSurface")
-			local scoreDisplay = scoreDisplayers:FindFirstChild("TeamScore" .. i)
+			local scoreDisplay = scoreDisplayers:FindFirstChild("TeamScore" .. amountOfTeamsMade)
 			local scoreText = scoreDisplay and scoreDisplay.SurfaceGui:FindFirstChild("ScoreText")
 
 			if interactPart and spawnSurface and scoreText then

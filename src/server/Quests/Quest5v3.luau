@@ -150,10 +150,19 @@ return function()
 	-- Find winner (player with most pullups)
 	local winnerObj = nil :: PlayerModule.PlayerObject | any
 	local maxPullups = -1
+
+	--Sets maxPullups.
+	for _, pullupCountPlr in pairs(pullupCounts) do
+		if pullupCountPlr > maxPullups then
+			maxPullups = pullupCountPlr
+		end
+	end
+
+	--If user has higher than maxPullups then works.
 	for _, playerObj in ipairs(activePlayers) do
 		local count = pullupCounts[playerObj.player.UserId] or 0
-		if count > maxPullups then
-			maxPullups = count
+
+		if count >= maxPullups then
 			winnerObj = playerObj
 
 			Remotes.DisplayVictory:FireClient(playerObj.player, (_A_QUESTCOUNT.CURRENT_COUNT * 10) + 50)

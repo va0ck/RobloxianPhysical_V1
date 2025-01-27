@@ -48,14 +48,22 @@ return function(props: SpectatorFrameType)
         setPlayerList(newPlayerList)
     end
     local function updateSpectator()
-        local foundPlayer = Players:FindFirstChild(playerList[currentIndex]) ::Player
+        local success, msg = pcall(function()
+            local foundPlayer = Players:FindFirstChild(playerList[currentIndex]) ::Player
 
-        if foundPlayer then
-            currentCamera.CameraSubject = foundPlayer.Character
-            return foundPlayer.Name
+            if foundPlayer then
+                currentCamera.CameraSubject = foundPlayer.Character
+                return foundPlayer.Name
+            end
+
+            return "@N/A"
+        end)
+
+        if success then
+            return msg
+        else
+            return "No characters currently, please wait for players to spawn in." 
         end
-
-        return "@N/A"
     end
 
     --Buttons Functions
